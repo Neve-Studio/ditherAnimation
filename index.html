@@ -11,6 +11,15 @@
     <link rel="preload" href="menubtn.png" as="image">
     <link rel="preload" href="centerpiece.png" as="image">
     <style>
+        /* GT America Font */
+        @font-face {
+            font-family: 'GT America';
+            src: url('GT-America-Condensed-Bold.otf') format('opentype');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+
         /* CSS Variables for better maintainability */
         :root {
             --bg-color: #2a2a2a;
@@ -55,8 +64,7 @@
             height: 100dvh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding-top: var(--container-padding);
+            align-items: center;
         }
 
         .circular-button {
@@ -67,7 +75,7 @@
             border: none;
             cursor: pointer;
             padding: 0;
-            z-index: 1000;
+            z-index: 1001;
             position: relative;
             overflow: hidden;
             transition: transform var(--animation-speed) cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,6 +83,8 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            margin: 0 auto;
+            pointer-events: auto;
         }
 
 
@@ -169,12 +179,19 @@
             z-index: 50;
             pointer-events: auto;
             user-select: none;
-            opacity: 1;
+            opacity: 0;
             display: flex;
             gap: 8vw;
             align-items: center;
             justify-content: center;
             padding: 0 4vw;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .background-text.menu-open {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .menu-column {
@@ -195,7 +212,7 @@
         }
 
         .menu-number {
-            font-family: 'Courier New', monospace;
+            font-family: 'GT America', system-ui, sans-serif;
             font-size: clamp(20px, 3vw, 32px);
             color: #00CED1;
             margin-right: 4vw;
@@ -215,21 +232,43 @@
         }
 
         .menu-item .hover-image {
-            opacity: 1;
+            opacity: 0;
             pointer-events: none;
         }
 
         .menu-item .default-image {
-            opacity: 0;
-        }
-
-        .menu-item:hover .default-image {
             opacity: 1;
         }
 
-        .menu-item:hover .hover-image {
+        .menu-item:hover .default-image {
             opacity: 0;
         }
+
+        .menu-item:hover .hover-image {
+            opacity: 1;
+        }
+
+        /* Hover effects for all menu items when one is hovered */
+        .menu-column:hover .menu-item:not(:hover) {
+            opacity: 0.8;
+            transition: opacity 0.15s ease;
+        }
+
+        .menu-column:hover .menu-item:not(:hover) .default-image {
+            opacity: 0;
+        }
+
+        .menu-column:hover .menu-item:not(:hover) .hover-image {
+            opacity: 1;
+        }
+
+        /* Hovered item rotation and full visibility */
+        .menu-item:hover {
+            transform: rotate(-1.49deg);
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+
 
         .descriptions-column {
             display: flex;
@@ -242,13 +281,13 @@
         }
 
         .description-item {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: 'GT America', system-ui, sans-serif;
             font-size: clamp(14px, 2.5vw, 22px);
             color: #C0C0C0;
             text-align: right;
             line-height: 1.4;
             max-width: 280px;
-            font-weight: 300;
+            font-weight: bold;
             letter-spacing: 0.5px;
         }
 
@@ -262,30 +301,29 @@
             justify-content: space-between;
             align-items: center;
             padding: 2vh 4vw;
-            pointer-events: none;
         }
 
         .header-left {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: 'GT America', system-ui, sans-serif;
             font-size: clamp(10px, 1.5vw, 14px);
             color: #C0C0C0;
-            font-weight: 400;
+            font-weight: bold;
             letter-spacing: 1px;
         }
 
         .header-center {
-            width: 20px;
-            height: 20px;
-            background: #C0C0C0;
-            border-radius: 50%;
-            opacity: 0.7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            pointer-events: auto;
         }
 
         .header-right {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: 'GT America', system-ui, sans-serif;
             font-size: clamp(10px, 1.5vw, 14px);
             color: #C0C0C0;
-            font-weight: 400;
+            font-weight: bold;
             letter-spacing: 1px;
             display: flex;
             align-items: center;
@@ -324,30 +362,47 @@
             }
             
             .background-text {
-                gap: 6vw;
+                gap: 4vw;
                 padding: 0 2vw;
             }
             
             .menu-column {
-                gap: 1.5vh;
+                height: 65vh;
+                padding: 7.5vh 0;
             }
             
             .descriptions-column {
-                gap: 1.5vh;
+                height: 65vh;
+                padding: 7.5vh 0;
             }
             
             .menu-item img {
-                height: clamp(80px, 12vh, 120px);
+                height: clamp(60px, 10vh, 100px);
             }
             
             .menu-number {
-                font-size: clamp(16px, 2.5vw, 20px);
-                margin-right: 3vw;
+                font-size: clamp(14px, 2vw, 18px);
+                margin-right: 2vw;
+                min-width: 35px;
             }
             
             .description-item {
-                font-size: clamp(11px, 2vw, 16px);
-                max-width: 200px;
+                font-size: clamp(10px, 1.8vw, 14px);
+                max-width: 160px;
+                line-height: 1.3;
+            }
+            
+            .header {
+                padding: 1.5vh 2vw;
+            }
+            
+            .header-left,
+            .header-right {
+                font-size: clamp(8px, 1.2vw, 12px);
+            }
+            
+            .header-center {
+                flex: 0.5;
             }
         }
 
@@ -356,6 +411,50 @@
             :root {
                 --button-size: clamp(24px, 6vw, 28px);
                 --text-size: clamp(16px, 4.5vw, 24px);
+            }
+            
+            .background-text {
+                gap: 3vw;
+                padding: 0 1vw;
+            }
+            
+            .menu-column {
+                height: 60vh;
+                padding: 10vh 0;
+            }
+            
+            .descriptions-column {
+                height: 60vh;
+                padding: 10vh 0;
+            }
+            
+            .menu-item img {
+                height: clamp(50px, 8vh, 80px);
+            }
+            
+            .menu-number {
+                font-size: clamp(12px, 1.8vw, 16px);
+                margin-right: 1.5vw;
+                min-width: 30px;
+            }
+            
+            .description-item {
+                font-size: clamp(9px, 1.5vw, 12px);
+                max-width: 120px;
+                line-height: 1.2;
+            }
+            
+            .header {
+                padding: 1vh 1.5vw;
+            }
+            
+            .header-center {
+                flex: 0.5;
+            }
+            
+            .header-arrow {
+                width: 10px;
+                height: 10px;
             }
         }
 
@@ -553,7 +652,24 @@
 
     <header class="header">
         <div class="header-left">GRACE BRIGADE</div>
-        <div class="header-center"></div>
+        <div class="header-center">
+            <button 
+                class="circular-button" 
+                id="triggerButton"
+                aria-label="Toggle menu animation"
+                type="button"
+            >
+                <img 
+                    src="menubtn.png" 
+                    alt="Menu Button" 
+                    class="button-image"
+                    loading="eager"
+                    decoding="async"
+                >
+                <div class="button-text">MENU</div>
+                <div class="state-indicator" aria-live="polite" aria-atomic="true">Ready</div>
+            </button>
+        </div>
         <div class="header-right">
             FOR A TOUCH OF GRACE
             <div class="header-arrow"></div>
@@ -561,22 +677,6 @@
     </header>
 
     <main class="container" role="main">
-        <button 
-            class="circular-button" 
-            id="triggerButton"
-            aria-label="Toggle menu animation"
-            type="button"
-        >
-            <img 
-                src="menubtn.png" 
-                alt="Menu Button" 
-                class="button-image"
-                loading="eager"
-                decoding="async"
-            >
-            <div class="button-text">MENU</div>
-            <div class="state-indicator" aria-live="polite" aria-atomic="true">Ready</div>
-        </button>
     </main>
 
     <img 
@@ -629,6 +729,7 @@
         id="fpsToggle"
         aria-label="Toggle frame rate between 30fps and 60fps"
         type="button"
+        style="display: none;"
     >
         60 FPS
     </button>
@@ -763,6 +864,9 @@
                 } else {
                     this.startOpeningAnimation();
                 }
+                
+                // Toggle menu visibility
+                this.toggleMenuVisibility();
             }
 
             handleFpsToggle() {
@@ -1126,6 +1230,7 @@
             }
 
             positionFrame(frame) {
+                // Position frames at the center of the circular button
                 const buttonRect = this.elements.button.getBoundingClientRect();
                 const buttonCenterX = buttonRect.left + buttonRect.width / 2;
                 const buttonCenterY = buttonRect.top + buttonRect.height / 2;
@@ -1216,6 +1321,9 @@
                     this.elements.container.style.display = 'none';
                 }
                 
+                // Update menu visibility based on animation state
+                this.toggleMenuVisibility();
+                
                 this.state.isPlaying = false;
                 if (this.state.animationId) {
                     clearTimeout(this.state.animationId);
@@ -1232,6 +1340,17 @@
                     setTimeout(() => {
                         indicator.classList.remove('visible');
                     }, 2000);
+                }
+            }
+
+            toggleMenuVisibility() {
+                const backgroundText = document.getElementById('backgroundText');
+                if (backgroundText) {
+                    if (this.state.isExpanded) {
+                        backgroundText.classList.add('menu-open');
+                    } else {
+                        backgroundText.classList.remove('menu-open');
+                    }
                 }
             }
 
@@ -1257,8 +1376,9 @@
 
             setupMenuItemEvents() {
                 const menuItems = document.querySelectorAll('.menu-item');
+                const descriptions = document.querySelectorAll('.description-item');
                 
-                menuItems.forEach(item => {
+                menuItems.forEach((item, index) => {
                     item.addEventListener('click', (e) => {
                         const menuType = item.dataset.menu;
                         this.handleMenuClick(menuType);
@@ -1272,10 +1392,67 @@
                         }
                     });
                     
+                    // Hover effects
+                    item.addEventListener('mouseenter', () => {
+                        this.handleMenuHover(index, true);
+                    });
+                    
+                    item.addEventListener('mouseleave', () => {
+                        this.handleMenuHover(index, false);
+                    });
+                    
                     // Make menu items focusable for accessibility
                     item.setAttribute('tabindex', '0');
                     item.setAttribute('role', 'button');
                 });
+            }
+
+            handleMenuHover(hoveredIndex, isHovering) {
+                const menuItems = document.querySelectorAll('.menu-item');
+                const descriptions = document.querySelectorAll('.description-item');
+                const backgroundText = document.getElementById('backgroundText');
+                
+                // Only handle hover if menu is open
+                if (!backgroundText || !backgroundText.classList.contains('menu-open')) {
+                    return;
+                }
+                
+                if (isHovering) {
+                    // Fade out all other menu items and show their hover images
+                    menuItems.forEach((item, index) => {
+                        if (index !== hoveredIndex) {
+                            item.style.opacity = '0.8';
+                            const defaultImg = item.querySelector('.default-image');
+                            const hoverImg = item.querySelector('.hover-image');
+                            if (defaultImg) defaultImg.style.opacity = '0';
+                            if (hoverImg) hoverImg.style.opacity = '1';
+                        }
+                    });
+                    
+                    // Fade out all descriptions
+                    descriptions.forEach(desc => {
+                        desc.style.opacity = '0.8';
+                    });
+                    
+                    // Keep hovered item and its description fully visible
+                    const hoveredItem = menuItems[hoveredIndex];
+                    const hoveredDesc = descriptions[hoveredIndex];
+                    if (hoveredItem) hoveredItem.style.opacity = '1';
+                    if (hoveredDesc) hoveredDesc.style.opacity = '1';
+                } else {
+                    // Reset all items to normal state
+                    menuItems.forEach(item => {
+                        item.style.opacity = '1';
+                        const defaultImg = item.querySelector('.default-image');
+                        const hoverImg = item.querySelector('.hover-image');
+                        if (defaultImg) defaultImg.style.opacity = '1';
+                        if (hoverImg) hoverImg.style.opacity = '0';
+                    });
+                    
+                    descriptions.forEach(desc => {
+                        desc.style.opacity = '1';
+                    });
+                }
             }
 
             handleMenuClick(menuType) {
