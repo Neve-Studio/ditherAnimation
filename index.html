@@ -13,8 +13,8 @@
     <style>
         /* CSS Variables for better maintainability */
         :root {
-            --bg-color: #C8C8C8;
-            --text-color: #333333;
+            --bg-color: #2a2a2a;
+            --text-color: #e0e0e0;
             --white: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.3);
             --button-size: clamp(20px, 4vw, 32px);
@@ -162,25 +162,144 @@
 
         .background-text {
             position: fixed;
-            bottom: var(--text-margin);
-            left: var(--text-margin);
-            font-family: 'Arial Black', system-ui, sans-serif;
-            font-size: var(--text-size);
-            font-weight: 900;
-            color: var(--text-color);
-            text-align: left;
-            line-height: 1.2;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             z-index: 50;
-            pointer-events: none;
+            pointer-events: auto;
             user-select: none;
-            text-shadow: 2px 2px 4px var(--shadow-color);
+            opacity: 1;
+            display: flex;
+            gap: 8vw;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4vw;
+        }
+
+        .menu-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 70vh;
+            padding: 5vh 0;
+            flex: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+        }
+
+        .menu-number {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(20px, 3vw, 32px);
+            color: #00CED1;
+            margin-right: 4vw;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .menu-item img {
+            height: clamp(120px, 18vh, 200px);
+            width: auto;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .menu-item .hover-image {
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        .menu-item .default-image {
+            opacity: 0;
+        }
+
+        .menu-item:hover .default-image {
             opacity: 1;
         }
 
-        .background-text .line {
-            display: block;
-            margin: 0.2em 0;
+        .menu-item:hover .hover-image {
+            opacity: 0;
         }
+
+        .descriptions-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 70vh;
+            padding: 5vh 0;
+            align-items: flex-end;
+            flex: 0 0 auto;
+        }
+
+        .description-item {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(14px, 2.5vw, 22px);
+            color: #C0C0C0;
+            text-align: right;
+            line-height: 1.4;
+            max-width: 280px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2vh 4vw;
+            pointer-events: none;
+        }
+
+        .header-left {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(10px, 1.5vw, 14px);
+            color: #C0C0C0;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .header-center {
+            width: 20px;
+            height: 20px;
+            background: #C0C0C0;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .header-right {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(10px, 1.5vw, 14px);
+            color: #C0C0C0;
+            font-weight: 400;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-arrow {
+            width: 12px;
+            height: 12px;
+            background: #C0C0C0;
+            clip-path: polygon(0 100%, 100% 0, 100% 100%);
+        }
+
+
 
         .centerpiece {
             position: fixed;
@@ -205,9 +324,30 @@
             }
             
             .background-text {
-                font-size: clamp(18px, 5vw, 32px);
-                bottom: clamp(15px, 4vw, 25px);
-                left: clamp(15px, 4vw, 25px);
+                gap: 6vw;
+                padding: 0 2vw;
+            }
+            
+            .menu-column {
+                gap: 1.5vh;
+            }
+            
+            .descriptions-column {
+                gap: 1.5vh;
+            }
+            
+            .menu-item img {
+                height: clamp(80px, 12vh, 120px);
+            }
+            
+            .menu-number {
+                font-size: clamp(16px, 2.5vw, 20px);
+                margin-right: 3vw;
+            }
+            
+            .description-item {
+                font-size: clamp(11px, 2vw, 16px);
+                max-width: 200px;
             }
         }
 
@@ -262,13 +402,7 @@
             }
         }
 
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #2a2a2a;
-                --text-color: #e0e0e0;
-            }
-        }
+
 
         /* Print styles */
         @media print {
@@ -347,6 +481,18 @@
             outline-offset: 2px;
         }
 
+        .menu-item:focus {
+            outline: none;
+        }
+
+        .menu-item:focus-visible {
+            outline: 2px solid var(--white);
+            outline-offset: 4px;
+            border-radius: 4px;
+        }
+
+
+
         /* Performance optimizations */
         .animation-frame,
         .centerpiece,
@@ -403,6 +549,17 @@
     </style>
 </head>
 <body>
+
+
+    <header class="header">
+        <div class="header-left">GRACE BRIGADE</div>
+        <div class="header-center"></div>
+        <div class="header-right">
+            FOR A TOUCH OF GRACE
+            <div class="header-arrow"></div>
+        </div>
+    </header>
+
     <main class="container" role="main">
         <button 
             class="circular-button" 
@@ -431,11 +588,36 @@
         decoding="async"
     >
 
-    <div class="background-text" id="backgroundText" aria-hidden="true">
-        <span class="line">WELCOME</span>
-        <span class="line">TEST KITCHEN</span>
-        <span class="line">USER MANUAL</span>
-        <span class="line">CONTACT</span>
+    <div class="background-text" id="backgroundText">
+        <div class="menu-column">
+            <div class="menu-item" data-menu="welcome">
+                <span class="menu-number">01</span>
+                <img src="menu/menu-welcome - 4x.png" alt="Welcome" class="default-image" loading="lazy">
+                <img src="menu/menu-welcome-hover - 4x.png" alt="Welcome Hover" class="hover-image" loading="lazy">
+            </div>
+            <div class="menu-item" data-menu="testkitchen">
+                <span class="menu-number">02</span>
+                <img src="menu/menu-testkitchen - 4x.png" alt="Test Kitchen" class="default-image" loading="lazy">
+                <img src="menu/menu-testkitchen-hover - 4x.png" alt="Test Kitchen Hover" class="hover-image" loading="lazy">
+            </div>
+            <div class="menu-item" data-menu="usermanual">
+                <span class="menu-number">03</span>
+                <img src="menu/menu-usermanual - 4x.png" alt="User Manual" class="default-image" loading="lazy">
+                <img src="menu/menu-usermanual-hover - 4x.png" alt="User Manual Hover" class="hover-image" loading="lazy">
+            </div>
+            <div class="menu-item" data-menu="contact">
+                <span class="menu-number">04</span>
+                <img src="menu/menu-contact - 4x.png" alt="Contact" class="default-image" loading="lazy">
+                <img src="menu/menu-contact-hover - 4x.png" alt="Contact Hover" class="hover-image" loading="lazy">
+            </div>
+        </div>
+        
+        <div class="descriptions-column">
+            <div class="description-item">ABOUT GRACE BRIGADE</div>
+            <div class="description-item">THOUGHTS AND EXPERIMENTS</div>
+            <div class="description-item">OUR PHILOSOPHY</div>
+            <div class="description-item">GET IN TOUCH</div>
+        </div>
     </div>
 
     <div class="animation-container" id="animationContainer" aria-hidden="true">
@@ -443,12 +625,12 @@
     </div>
 
     <button 
-        class="fps-toggle fps-30" 
+        class="fps-toggle fps-60" 
         id="fpsToggle"
         aria-label="Toggle frame rate between 30fps and 60fps"
         type="button"
     >
-        30 FPS
+        60 FPS
     </button>
 
     <div class="loading-indicator" id="loadingIndicator">
@@ -468,7 +650,7 @@
             constructor() {
                 // Configuration
                 this.config = {
-                    currentFPS: 30, // Default to 30fps
+                    currentFPS: 60, // Default to 60fps
                     fps30: {
                         totalFrames: 30,
                         frameDuration: 33.33, // ~30fps (1000ms/30)
@@ -479,12 +661,12 @@
                         }
                     },
                     fps60: {
-                        totalFrames: 30, // Same frames as 30fps, just faster playback
-                        frameDuration: 16.67, // ~60fps (1000ms/60)
-                        frameOffset: 72, // Same offset structure as 30fps
+                        totalFrames: 75, // 60fps folders have 75 frames (00000-00074)
+                        frameDuration: 20.83, // ~60fps at 0.8x speed (1000ms/48fps)
+                        frameOffset: 180, // Closing frames start from 180
                         folders: {
-                            opening: 'jpg-in',  // Use same folders as 30fps
-                            closing: 'jpg-out'  // Use same folders as 30fps
+                            opening: 'jpg-in60',  // Use 60fps folders
+                            closing: 'jpg-out60'  // Use 60fps folders
                         }
                     }
                 };
@@ -526,7 +708,7 @@
                 try {
                     this.setupEventListeners();
                     this.preloadFrames();
-                    this.updateDebug('Initializing...');
+                    this.updateDebug('Initializing 60fps mode...');
                     this.updateStateIndicator('Ready');
                     
                     // Add loading state
@@ -637,7 +819,7 @@
             }
 
             preloadFrames() {
-                this.updateDebug('Preloading 30fps frames...');
+                this.updateDebug('Preloading 60fps frames...');
                 this.preloadFramesForCurrentFPS();
             }
 
@@ -706,6 +888,7 @@
 
             preloadFrameSet(type, startOffset, count, targetArray, fpsConfig) {
                 const folder = fpsConfig.folders[type];
+                const is60fps = this.config.currentFPS === 60;
                 
                 for (let i = 0; i < count; i++) {
                     const frameNumber = (i + startOffset).toString().padStart(5, '0');
@@ -726,7 +909,15 @@
                         this.handleFrameError(frameNumber, folder);
                     };
                     
-                    img.src = `${folder}/menu-mask_${frameNumber}.jpg`;
+                    // Handle different naming convention for 60fps folders
+                    let framePath;
+                    if (is60fps) {
+                        framePath = `${folder}/menu-mask 60_${frameNumber}.jpg`;
+                    } else {
+                        framePath = `${folder}/menu-mask_${frameNumber}.jpg`;
+                    }
+                    
+                    img.src = framePath;
                     img.className = 'animation-frame';
                     img.style.display = 'none';
                     img.loading = 'eager';
@@ -812,7 +1003,14 @@
             }
 
             handleFrameError(frameNumber, folder) {
-                console.error(`Failed to load: ${folder}/menu-mask_${frameNumber}.jpg`);
+                const is60fps = this.config.currentFPS === 60;
+                let framePath;
+                if (is60fps) {
+                    framePath = `${folder}/menu-mask 60_${frameNumber}.jpg`;
+                } else {
+                    framePath = `${folder}/menu-mask_${frameNumber}.jpg`;
+                }
+                console.error(`Failed to load: ${framePath}`);
                 this.updateDebug(`Error loading frame ${frameNumber}`);
             }
 
@@ -1051,9 +1249,66 @@
             }
         }
 
-        // Initialize the animation when the page loads
+        // Menu interaction functionality
+        class MenuInteraction {
+            constructor() {
+                this.setupMenuItemEvents();
+            }
+
+            setupMenuItemEvents() {
+                const menuItems = document.querySelectorAll('.menu-item');
+                
+                menuItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const menuType = item.dataset.menu;
+                        this.handleMenuClick(menuType);
+                    });
+                    
+                    item.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const menuType = item.dataset.menu;
+                            this.handleMenuClick(menuType);
+                        }
+                    });
+                    
+                    // Make menu items focusable for accessibility
+                    item.setAttribute('tabindex', '0');
+                    item.setAttribute('role', 'button');
+                });
+            }
+
+            handleMenuClick(menuType) {
+                console.log(`Menu clicked: ${menuType}`);
+                
+                // Add your menu navigation logic here
+                switch(menuType) {
+                    case 'welcome':
+                        console.log('Navigate to Welcome page');
+                        // window.location.href = '/welcome';
+                        break;
+                    case 'testkitchen':
+                        console.log('Navigate to Test Kitchen page');
+                        // window.location.href = '/test-kitchen';
+                        break;
+                    case 'usermanual':
+                        console.log('Navigate to User Manual page');
+                        // window.location.href = '/user-manual';
+                        break;
+                    case 'contact':
+                        console.log('Navigate to Contact page');
+                        // window.location.href = '/contact';
+                        break;
+                    default:
+                        console.log('Unknown menu item');
+                }
+            }
+        }
+
+        // Initialize both animation and menu interaction when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             new MenuAnimation();
+            new MenuInteraction();
         });
     </script>
 </body>
