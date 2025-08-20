@@ -2,69 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Interactive menu dither animation with smooth frame-based transitions">
+    <meta name="theme-color" content="#C8C8C8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Menu Dither Animation</title>
+    <link rel="preload" href="menubtn.png" as="image">
+    <link rel="preload" href="centerpiece.png" as="image">
     <style>
-        * {
+        /* CSS Variables for better maintainability */
+        :root {
+            --bg-color: #C8C8C8;
+            --text-color: #333333;
+            --white: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --button-size: clamp(20px, 4vw, 32px);
+            --text-size: clamp(24px, 6vw, 48px);
+            --container-padding: clamp(20px, 8vh, 50px);
+            --text-margin: clamp(10px, 3vw, 20px);
+            --animation-speed: 0.3s;
+        }
+
+        /* CSS Reset */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #C8C8C8;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-color);
             overflow: hidden;
             height: 100vh;
+            height: 100dvh; /* Modern dynamic viewport height */
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding-top: 50px;
+            padding-top: var(--container-padding);
         }
 
         .circular-button {
-            width: 24px;
-            height: 24px;
+            width: var(--button-size);
+            height: var(--button-size);
             border-radius: 50%;
-            background: none;
+            background: transparent;
             border: none;
             cursor: pointer;
             padding: 0;
             z-index: 1000;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform var(--animation-speed) cubic-bezier(0.4, 0, 0.2, 1);
             mix-blend-mode: difference;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        .circular-button:active {
-            transform: scale(0.95);
-        }
-
-        .circular-button.expanded {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-        }
 
 
 
         .animation-container {
             position: fixed;
             top: 0;
-            mix-blend-mode: difference;
-
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             pointer-events: none;
             z-index: 100;
             display: none;
-            background: rgba(0, 0, 0, 0.1); /* Debug: visible background */
+            mix-blend-mode: difference;
         }
 
         .animation-frame {
@@ -74,14 +100,19 @@
             transform: translate(-50%, -50%);
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             object-fit: cover;
             display: none;
-            border: 2px solid red; /* Debug: visible border */
             mix-blend-mode: difference;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
         .button-text {
-            display: none; /* Hide the text */
+            display: none;
         }
 
         .button-image {
@@ -89,20 +120,25 @@
             height: 100%;
             object-fit: contain;
             display: block;
+            user-select: none;
+            pointer-events: none;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
         .state-indicator {
             position: absolute;
-            bottom: -25px;
+            bottom: calc(-1 * var(--button-size) - 5px);
             left: 50%;
             transform: translateX(-50%);
-            color: white;
-            font-size: 12px;
+            color: var(--white);
+            font-size: clamp(10px, 2vw, 12px);
             font-weight: bold;
             text-align: center;
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity var(--animation-speed) ease;
+            pointer-events: none;
         }
 
         .state-indicator.visible {
@@ -114,259 +150,904 @@
             top: 10px;
             right: 10px;
             background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
+            color: var(--white);
+            padding: 8px 12px;
             border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: clamp(10px, 2vw, 12px);
             z-index: 1001;
+            display: none; /* Hidden in production */
+            opacity: 0.7;
         }
 
         .background-text {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Arial Black', sans-serif;
-            font-size: 120px;
+            bottom: var(--text-margin);
+            left: var(--text-margin);
+            font-family: 'Arial Black', system-ui, sans-serif;
+            font-size: var(--text-size);
             font-weight: 900;
-            color: #333333;
-            text-align: center;
-            line-height: 1;
+            color: var(--text-color);
+            text-align: left;
+            line-height: 1.2;
             z-index: 50;
             pointer-events: none;
             user-select: none;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+            opacity: 1;
         }
 
         .background-text .line {
             display: block;
-            margin: 10px 0;
+            margin: 0.2em 0;
         }
+
+        .centerpiece {
+            position: fixed;
+            mix-blend-mode: lighten;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            pointer-events: none;
+            opacity: 1;
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding-top: clamp(30px, 10vh, 60px);
+            }
+            
+            .background-text {
+                font-size: clamp(18px, 5vw, 32px);
+                bottom: clamp(15px, 4vw, 25px);
+                left: clamp(15px, 4vw, 25px);
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            :root {
+                --button-size: clamp(24px, 6vw, 28px);
+                --text-size: clamp(16px, 4.5vw, 24px);
+            }
+        }
+
+        /* Landscape mobile optimization */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                padding-top: 20px;
+            }
+            
+            .background-text {
+                font-size: clamp(14px, 3vw, 24px);
+                bottom: 10px;
+                left: 10px;
+            }
+            
+            :root {
+                --button-size: clamp(18px, 3.5vw, 24px);
+            }
+        }
+
+        /* Tablet styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            :root {
+                --button-size: clamp(28px, 3vw, 40px);
+                --text-size: clamp(32px, 4vw, 52px);
+            }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .button-image,
+            .centerpiece,
+            .animation-frame {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            .circular-button,
+            .state-indicator {
+                transition: none;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #2a2a2a;
+                --text-color: #e0e0e0;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .circular-button,
+            .state-indicator,
+            .debug-info,
+            .animation-container {
+                display: none !important;
+            }
+            
+            .background-text {
+                color: #000000 !important;
+                text-shadow: none;
+            }
+        }
+
+        /* Loading state */
+        .loading .circular-button {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading .fps-toggle {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Loading indicator */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--white);
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-family: system-ui, sans-serif;
+            font-size: clamp(14px, 3vw, 18px);
+            font-weight: bold;
+            text-align: center;
+            z-index: 2000;
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--white);
+        }
+
+        .loading .loading-indicator {
+            display: block;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: var(--white);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* Focus and accessibility improvements */
+        .circular-button:focus {
+            outline: none;
+        }
+
+        .circular-button:focus-visible {
+            outline: 2px solid var(--white);
+            outline-offset: 2px;
+        }
+
+        /* Performance optimizations */
+        .animation-frame,
+        .centerpiece,
+        .circular-button {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* FPS Toggle Control */
+        .fps-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--white);
+            border: 2px solid var(--white);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-family: system-ui, sans-serif;
+            font-size: clamp(12px, 2.5vw, 14px);
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .fps-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .fps-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .fps-toggle:focus-visible {
+            outline: 2px solid var(--white);
+            outline-offset: 2px;
+        }
+
+        .fps-toggle.fps-60 {
+            background: rgba(0, 150, 0, 0.8);
+            border-color: #00ff00;
+        }
+
+        .fps-toggle.fps-30 {
+            background: rgba(150, 150, 0, 0.8);
+            border-color: #ffff00;
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <button class="circular-button" id="triggerButton">
-            <img src="menubtn.png" alt="Menu Button" class="button-image">
+    <main class="container" role="main">
+        <button 
+            class="circular-button" 
+            id="triggerButton"
+            aria-label="Toggle menu animation"
+            type="button"
+        >
+            <img 
+                src="menubtn.png" 
+                alt="Menu Button" 
+                class="button-image"
+                loading="eager"
+                decoding="async"
+            >
             <div class="button-text">MENU</div>
-            <div class="state-indicator">Ready</div>
+            <div class="state-indicator" aria-live="polite" aria-atomic="true">Ready</div>
         </button>
-    </div>
+    </main>
 
-    <div class="background-text">
+    <img 
+        src="centerpiece.png" 
+        alt="Decorative centerpiece" 
+        class="centerpiece" 
+        id="centerpiece"
+        loading="eager"
+        decoding="async"
+    >
+
+    <div class="background-text" id="backgroundText" aria-hidden="true">
         <span class="line">WELCOME</span>
         <span class="line">TEST KITCHEN</span>
         <span class="line">USER MANUAL</span>
         <span class="line">CONTACT</span>
     </div>
 
-    <div class="animation-container" id="animationContainer">
+    <div class="animation-container" id="animationContainer" aria-hidden="true">
         <!-- Animation frames will be dynamically added here -->
     </div>
 
-    <div class="debug-info" id="debugInfo">
+    <button 
+        class="fps-toggle fps-30" 
+        id="fpsToggle"
+        aria-label="Toggle frame rate between 30fps and 60fps"
+        type="button"
+    >
+        30 FPS
+    </button>
+
+    <div class="loading-indicator" id="loadingIndicator">
+        <div>Loading Animation Frames...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loadingProgressBar"></div>
+        </div>
+        <div id="loadingText">0%</div>
+    </div>
+
+    <div class="debug-info" id="debugInfo" aria-hidden="true">
         Ready to animate
     </div>
 
     <script>
         class MenuAnimation {
             constructor() {
-                this.button = document.getElementById('triggerButton');
-                this.container = document.getElementById('animationContainer');
-                this.debugInfo = document.getElementById('debugInfo');
-                this.frames = [];
-                this.outFrames = [];
-                this.currentFrame = 0;
-                this.isPlaying = false;
-                this.isExpanded = false;
-                this.frameDuration = 41.67;// ~41.67ms per frame for smooth 24fps animation
-                this.loadedFrames = 0;
-                this.totalFrames = 30;
+                // Configuration
+                this.config = {
+                    currentFPS: 30, // Default to 30fps
+                    fps30: {
+                        totalFrames: 30,
+                        frameDuration: 33.33, // ~30fps (1000ms/30)
+                        frameOffset: 72,
+                        folders: {
+                            opening: 'jpg-in',
+                            closing: 'jpg-out'
+                        }
+                    },
+                    fps60: {
+                        totalFrames: 30, // Same frames as 30fps, just faster playback
+                        frameDuration: 16.67, // ~60fps (1000ms/60)
+                        frameOffset: 72, // Same offset structure as 30fps
+                        folders: {
+                            opening: 'jpg-in',  // Use same folders as 30fps
+                            closing: 'jpg-out'  // Use same folders as 30fps
+                        }
+                    }
+                };
+
+                // DOM elements
+                this.elements = {
+                    button: document.getElementById('triggerButton'),
+                    container: document.getElementById('animationContainer'),
+                    debugInfo: document.getElementById('debugInfo'),
+                    centerpiece: document.getElementById('centerpiece'),
+                    backgroundText: document.getElementById('backgroundText'),
+                    fpsToggle: document.getElementById('fpsToggle'),
+                    loadingIndicator: document.getElementById('loadingIndicator'),
+                    loadingProgressBar: document.getElementById('loadingProgressBar'),
+                    loadingText: document.getElementById('loadingText')
+                };
+
+                // Animation state
+                this.state = {
+                    frames30: [],
+                    outFrames30: [],
+                    frames60: [],
+                    outFrames60: [],
+                    currentFrame: 0,
+                    isPlaying: false,
+                    isExpanded: false,
+                    loadedFrames: 0,
+                    animationId: null,
+                    framesLoaded: {
+                        fps30: false,
+                        fps60: false
+                    }
+                };
                 
                 this.init();
             }
 
             init() {
-                this.button.addEventListener('click', () => this.handleButtonClick());
-                this.preloadFrames();
-                this.updateDebug('Initializing...');
-                this.updateStateIndicator('Ready');
+                try {
+                    this.setupEventListeners();
+                    this.preloadFrames();
+                    this.updateDebug('Initializing...');
+                    this.updateStateIndicator('Ready');
+                    
+                    // Add loading state
+                    document.body.classList.add('loading');
+                } catch (error) {
+                    console.error('MenuAnimation initialization failed:', error);
+                    this.updateDebug('Initialization failed');
+                }
+            }
+
+            setupEventListeners() {
+                // Button interaction
+                this.elements.button.addEventListener('click', () => this.handleButtonClick());
+                this.elements.button.addEventListener('keydown', (e) => this.handleKeydown(e));
+                
+                // FPS toggle
+                this.elements.fpsToggle.addEventListener('click', () => this.handleFpsToggle());
+                this.elements.fpsToggle.addEventListener('keydown', (e) => this.handleFpsToggleKeydown(e));
+                
+                // Performance optimizations
+                document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
+                window.addEventListener('resize', this.debounce(() => this.handleResize(), 250));
+                
+                // Touch events for mobile
+                this.elements.button.addEventListener('touchstart', () => this.handleTouchStart(), { passive: true });
+            }
+
+            handleKeydown(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    this.handleButtonClick();
+                }
+            }
+
+            handleFpsToggleKeydown(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    this.handleFpsToggle();
+                }
+            }
+
+            handleTouchStart() {
+                // Prevent 300ms delay on mobile
+                this.elements.button.classList.add('touched');
             }
 
             handleButtonClick() {
-                if (this.isPlaying) return;
+                if (this.state.isPlaying) return;
                 
-                if (this.isExpanded) {
+                if (this.state.isExpanded) {
                     this.startClosingAnimation();
                 } else {
                     this.startOpeningAnimation();
                 }
             }
 
+            handleFpsToggle() {
+                if (this.state.isPlaying) {
+                    this.updateDebug('Cannot change FPS during animation');
+                    return;
+                }
+
+                // Complete reset of animation state
+                this.resetAnimationState();
+
+                // Change FPS mode
+                this.config.currentFPS = this.config.currentFPS === 30 ? 60 : 30;
+                this.updateFpsToggleUI();
+                this.updateDebug(`Switched to ${this.config.currentFPS}fps mode`);
+                
+                // Load frames for new FPS if not already loaded
+                if (!this.state.framesLoaded[`fps${this.config.currentFPS}`]) {
+                    this.preloadFramesForCurrentFPS();
+                } else {
+                    // Frames already loaded, just remove loading state
+                    document.body.classList.remove('loading');
+                }
+            }
+
+            updateFpsToggleUI() {
+                const toggle = this.elements.fpsToggle;
+                toggle.textContent = `${this.config.currentFPS} FPS`;
+                toggle.className = `fps-toggle fps-${this.config.currentFPS}`;
+            }
+
+            handleVisibilityChange() {
+                if (document.hidden && this.state.isPlaying) {
+                    // Pause animation when tab is not visible
+                    if (this.state.animationId) {
+                        clearTimeout(this.state.animationId);
+                    }
+                }
+            }
+
+            handleResize() {
+                // Recalculate positions on resize
+                if (this.state.isPlaying) {
+                    // Update frame positions if needed
+                    this.updateFramePositions();
+                }
+            }
+
             updateDebug(message) {
-                this.debugInfo.textContent = message;
-                console.log(message);
+                if (this.elements.debugInfo) {
+                    this.elements.debugInfo.textContent = message;
+                }
+                console.log(`MenuAnimation: ${message}`);
             }
 
             preloadFrames() {
-                this.updateDebug('Preloading frames...');
+                this.updateDebug('Preloading 30fps frames...');
+                this.preloadFramesForCurrentFPS();
+            }
+
+            preloadFramesForCurrentFPS() {
+                const fpsConfig = this.getCurrentFPSConfig();
+                const fpsKey = `fps${this.config.currentFPS}`;
                 
-                // Create and preload all 30 frames from jpg-in folder (opening)
-                for (let i = 0; i < this.totalFrames; i++) {
-                    const frameNumber = i.toString().padStart(5, '0');
-                    const img = new Image();
-                    
-                    img.onload = () => {
-                        this.loadedFrames++;
-                        this.updateDebug(`Loaded ${this.loadedFrames}/${this.totalFrames * 2} frames`);
-                        
-                        if (this.loadedFrames === this.totalFrames * 2) {
-                            this.updateDebug('All frames loaded! Click button to animate');
-                        }
-                    };
-                    
-                    img.onerror = () => {
-                        this.updateDebug(`Error loading opening frame ${frameNumber}`);
-                        console.error(`Failed to load: jpg-in/menu-mask_${frameNumber}.jpg`);
-                    };
-                    
-                    img.src = `jpg-in/menu-mask_${frameNumber}.jpg`;
-                    img.className = 'animation-frame';
-                    img.style.display = 'none';
-                    
-                    this.frames.push(img);
-                    this.container.appendChild(img);
+                if (this.state.framesLoaded[fpsKey]) {
+                    this.updateDebug(`${this.config.currentFPS}fps frames already loaded`);
+                    document.body.classList.remove('loading');
+                    return;
                 }
 
-                // Create and preload all 30 frames from jpg-out folder (closing)
-                // jpg-out files start from 00072, so we need to offset the numbering
-                for (let i = 0; i < this.totalFrames; i++) {
-                    const frameNumber = (i + 72).toString().padStart(5, '0'); // Start from 00072
-                    const img = new Image();
+                // Special case: if 60fps uses same folders as 30fps and 30fps is already loaded
+                if (this.config.currentFPS === 60 && this.state.framesLoaded['fps30']) {
+                    // Copy references from 30fps arrays to 60fps arrays (same images, different playback speed)
+                    this.state.frames60 = [...this.state.frames30];
+                    this.state.outFrames60 = [...this.state.outFrames30];
+                    this.state.framesLoaded['fps60'] = true;
+                    this.updateDebug('60fps frames loaded (reusing 30fps frames)');
+                    document.body.classList.remove('loading');
+                    return;
+                }
+
+                // Special case: if 30fps wants to load but 60fps is already loaded (reuse)
+                if (this.config.currentFPS === 30 && this.state.framesLoaded['fps60']) {
+                    // Copy references from 60fps arrays to 30fps arrays
+                    this.state.frames30 = [...this.state.frames60];
+                    this.state.outFrames30 = [...this.state.outFrames60];
+                    this.state.framesLoaded['fps30'] = true;
+                    this.updateDebug('30fps frames loaded (reusing 60fps frames)');
+                    document.body.classList.remove('loading');
+                    return;
+                }
+
+                this.updateDebug(`Preloading ${this.config.currentFPS}fps frames...`);
+                
+                // Add loading state when loading new FPS
+                document.body.classList.add('loading');
+                
+                // Clear previous frame counts for this FPS
+                this.state.loadedFrames = 0;
+                
+                // Determine target arrays
+                const framesArray = this.config.currentFPS === 30 ? this.state.frames30 : this.state.frames60;
+                const outFramesArray = this.config.currentFPS === 30 ? this.state.outFrames30 : this.state.outFrames60;
+                
+                // Only clear arrays if they're truly empty or from different sources
+                if (framesArray.length === 0) {
+                    // Preload opening frames
+                    this.preloadFrameSet('opening', 0, fpsConfig.totalFrames, framesArray, fpsConfig);
                     
-                    img.onload = () => {
-                        this.loadedFrames++;
-                        this.updateDebug(`Loaded ${this.loadedFrames}/${this.totalFrames * 2} frames`);
-                        
-                        if (this.loadedFrames === this.totalFrames * 2) {
-                            this.updateDebug('All frames loaded! Click button to animate');
-                        }
-                    };
-                    
-                    img.onerror = () => {
-                        this.updateDebug(`Error loading closing frame ${frameNumber}`);
-                        console.error(`Failed to load: jpg-out/menu-mask_${frameNumber}.jpg`);
-                    };
-                    
-                    img.src = `jpg-out/menu-mask_${frameNumber}.jpg`;
-                    img.className = 'animation-frame';
-                    img.style.display = 'none';
-                    
-                    this.outFrames.push(img);
-                    this.container.appendChild(img);
+                    // Preload closing frames
+                    this.preloadFrameSet('closing', fpsConfig.frameOffset, fpsConfig.totalFrames, outFramesArray, fpsConfig);
+                } else {
+                    // Frames already exist, mark as loaded
+                    this.state.framesLoaded[fpsKey] = true;
+                    this.updateDebug(`${this.config.currentFPS}fps frames already available`);
+                    document.body.classList.remove('loading');
                 }
             }
 
+            getCurrentFPSConfig() {
+                return this.config[`fps${this.config.currentFPS}`];
+            }
+
+            preloadFrameSet(type, startOffset, count, targetArray, fpsConfig) {
+                const folder = fpsConfig.folders[type];
+                
+                for (let i = 0; i < count; i++) {
+                    const frameNumber = (i + startOffset).toString().padStart(5, '0');
+                    const img = new Image();
+                    
+                    // Add frame info for tracking
+                    img.dataset.frameIndex = i;
+                    img.dataset.frameType = type;
+                    img.dataset.fps = this.config.currentFPS;
+                    
+                    img.onload = () => {
+                        this.updateDebug(`Frame loaded: ${type} ${frameNumber} for ${this.config.currentFPS}fps`);
+                        this.handleFrameLoad();
+                    };
+                    
+                    img.onerror = () => {
+                        this.updateDebug(`Frame error: ${type} ${frameNumber} for ${this.config.currentFPS}fps`);
+                        this.handleFrameError(frameNumber, folder);
+                    };
+                    
+                    img.src = `${folder}/menu-mask_${frameNumber}.jpg`;
+                    img.className = 'animation-frame';
+                    img.style.display = 'none';
+                    img.loading = 'eager';
+                    img.decoding = 'sync'; // Force synchronous decoding
+                    
+                    targetArray.push(img);
+                    this.elements.container.appendChild(img);
+                }
+            }
+
+            handleFrameLoad() {
+                this.state.loadedFrames++;
+                const fpsConfig = this.getCurrentFPSConfig();
+                const totalFrames = fpsConfig.totalFrames * 2;
+                const progress = Math.round((this.state.loadedFrames / totalFrames) * 100);
+                
+                // Update visual progress indicator
+                this.updateLoadingProgress(progress, `Loading ${this.config.currentFPS}fps frames...`);
+                
+                this.updateDebug(`Loading ${this.config.currentFPS}fps frames... ${this.state.loadedFrames}/${totalFrames} (${progress}%)`);
+                
+                if (this.state.loadedFrames === totalFrames) {
+                    // Wait a bit to ensure all frames are fully processed
+                    setTimeout(() => {
+                        this.validateAndCompleteLoading();
+                    }, 100);
+                }
+            }
+
+            updateLoadingProgress(percentage, message) {
+                if (this.elements.loadingProgressBar) {
+                    this.elements.loadingProgressBar.style.width = `${percentage}%`;
+                }
+                if (this.elements.loadingText) {
+                    this.elements.loadingText.textContent = `${percentage}%`;
+                }
+                if (message && this.elements.loadingIndicator) {
+                    const messageDiv = this.elements.loadingIndicator.querySelector('div:first-child');
+                    if (messageDiv) {
+                        messageDiv.textContent = message;
+                    }
+                }
+            }
+
+            validateAndCompleteLoading() {
+                const fpsConfig = this.getCurrentFPSConfig();
+                const framesArray = this.config.currentFPS === 30 ? this.state.frames30 : this.state.frames60;
+                const outFramesArray = this.config.currentFPS === 30 ? this.state.outFrames30 : this.state.outFrames60;
+                
+                // Validate all frames are actually loaded
+                const allFrames = [...framesArray, ...outFramesArray];
+                let validFrames = 0;
+                
+                allFrames.forEach((frame, index) => {
+                    if (frame && frame.complete && frame.naturalWidth > 0) {
+                        validFrames++;
+                    } else {
+                        this.updateDebug(`Frame ${index} not ready: complete=${frame?.complete}, width=${frame?.naturalWidth}`);
+                    }
+                });
+                
+                this.updateDebug(`Validation: ${validFrames}/${allFrames.length} frames are ready`);
+                
+                if (validFrames === allFrames.length) {
+                    this.state.framesLoaded[`fps${this.config.currentFPS}`] = true;
+                    this.updateDebug(`✅ ALL ${this.config.currentFPS}fps frames loaded and validated! Animation ready.`);
+                    
+                    // Show completion message
+                    this.updateLoadingProgress(100, `${this.config.currentFPS}fps frames ready!`);
+                    
+                    // Remove loading state after a brief delay to show completion
+                    setTimeout(() => {
+                        document.body.classList.remove('loading');
+                    }, 500);
+                } else {
+                    // Try again after a short delay
+                    this.updateDebug(`⏳ Waiting for remaining frames to load...`);
+                    this.updateLoadingProgress(95, 'Finalizing frames...');
+                    setTimeout(() => {
+                        this.validateAndCompleteLoading();
+                    }, 200);
+                }
+            }
+
+            handleFrameError(frameNumber, folder) {
+                console.error(`Failed to load: ${folder}/menu-mask_${frameNumber}.jpg`);
+                this.updateDebug(`Error loading frame ${frameNumber}`);
+            }
+
             startOpeningAnimation() {
-                if (this.loadedFrames < this.totalFrames * 2) {
+                const fpsKey = `fps${this.config.currentFPS}`;
+                if (!this.state.framesLoaded[fpsKey]) {
                     this.updateDebug('Still loading frames...');
                     return;
                 }
                 
-                this.updateDebug('Starting opening animation...');
-                this.isPlaying = true;
-                this.currentFrame = 0;
-                this.container.style.display = 'block';
+                // Ensure we have valid frames
+                const currentFrames = this.config.currentFPS === 30 ? this.state.frames30 : this.state.frames60;
+                this.updateDebug(`Frame arrays: 30fps=${this.state.frames30.length}, 60fps=${this.state.frames60.length}, current=${currentFrames.length}`);
                 
-
+                if (!currentFrames || currentFrames.length === 0) {
+                    this.updateDebug(`No frames available for ${this.config.currentFPS}fps - trying to load`);
+                    this.preloadFramesForCurrentFPS();
+                    return;
+                }
                 
-                // Start the opening animation sequence
-                this.playNextFrame(this.frames, true);
+                this.updateDebug(`Starting ${this.config.currentFPS}fps opening animation...`);
+                
+                // Reset animation state but set playing AFTER reset
+                this.resetAnimationState();
+                this.state.isPlaying = true;
+                this.state.currentFrame = 0;
+                
+                // Show container FIRST
+                this.elements.container.style.display = 'block';
+                
+                // Double-check all frames are hidden
+                this.hideAllFrames();
+                
+                // Use double RAF to ensure everything is rendered
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        this.playNextFrame(currentFrames, true);
+                    });
+                });
             }
 
             startClosingAnimation() {
-                this.updateDebug('Starting closing animation...');
-                this.isPlaying = true;
-                this.currentFrame = 0;
+                // Ensure we have valid frames
+                const currentClosingFrames = this.config.currentFPS === 30 ? this.state.outFrames30 : this.state.outFrames60;
+                if (!currentClosingFrames || currentClosingFrames.length === 0) {
+                    this.updateDebug('No closing frames available for current FPS');
+                    return;
+                }
                 
-                // Hide all opening frames first to prevent overlap
-                this.frames.forEach(frame => {
-                    frame.style.display = 'none';
-                });
+                this.updateDebug(`Starting ${this.config.currentFPS}fps closing animation...`);
+                this.state.isPlaying = true;
+                this.state.currentFrame = 0;
                 
-                // Start the closing animation sequence
-                this.playNextFrame(this.outFrames, false);
+                // Get current FPS closing frames and hide others
+                this.hideAllFramesExcept(currentClosingFrames);
+                
+                this.playNextFrame(currentClosingFrames, false);
             }
 
             playNextFrame(frameArray, isOpening) {
-                if (this.currentFrame >= frameArray.length) {
+                // Safety check: ensure we're still supposed to be playing
+                if (!this.state.isPlaying) {
+                    return;
+                }
+                
+                if (this.state.currentFrame >= frameArray.length) {
                     this.endAnimation(isOpening);
                     return;
                 }
 
-                const currentFrame = frameArray[this.currentFrame];
+                const currentFrame = frameArray[this.state.currentFrame];
                 
-                // Position frames at the exact button location (top center)
-                const buttonRect = this.button.getBoundingClientRect();
+                // Validate frame exists
+                if (!currentFrame) {
+                    this.updateDebug(`Frame ${this.state.currentFrame} not found, ending animation`);
+                    this.endAnimation(isOpening);
+                    return;
+                }
+                
+                // More lenient validation - just check if it's an image element
+                if (!currentFrame.src) {
+                    this.updateDebug(`Frame ${this.state.currentFrame} has no source, ending animation`);
+                    this.endAnimation(isOpening);
+                    return;
+                }
+                
+                // Hide previous frame FIRST
+                if (this.state.currentFrame > 0) {
+                    const previousFrame = frameArray[this.state.currentFrame - 1];
+                    if (previousFrame && previousFrame.style) {
+                        previousFrame.style.display = 'none';
+                    }
+                }
+                
+                // Position and show current frame
+                this.positionFrame(currentFrame);
+                currentFrame.style.display = 'block';
+                
+                const action = isOpening ? 'Opening' : 'Closing';
+                this.updateDebug(`${action} Frame ${this.state.currentFrame + 1}/${frameArray.length}`);
+                
+                this.state.currentFrame++;
+                
+                // Use current FPS configuration for timing
+                const fpsConfig = this.getCurrentFPSConfig();
+                
+                // Schedule next frame only if still playing
+                this.state.animationId = setTimeout(() => {
+                    if (!document.hidden && this.state.isPlaying) {
+                        this.playNextFrame(frameArray, isOpening);
+                    }
+                }, fpsConfig.frameDuration);
+            }
+
+            positionFrame(frame) {
+                const buttonRect = this.elements.button.getBoundingClientRect();
                 const buttonCenterX = buttonRect.left + buttonRect.width / 2;
                 const buttonCenterY = buttonRect.top + buttonRect.height / 2;
                 
-                // Let PNGs play at their natural size - no scaling
-                currentFrame.style.left = buttonCenterX + 'px';
-                currentFrame.style.top = buttonCenterY + 'px';
-                currentFrame.style.transform = 'translate(-50%, -50%)';
-                currentFrame.style.width = 'auto';
-                currentFrame.style.height = 'auto';
-                currentFrame.style.objectFit = 'contain';
+                frame.style.left = buttonCenterX + 'px';
+                frame.style.top = buttonCenterY + 'px';
+                frame.style.transform = 'translate(-50%, -50%)';
+                frame.style.width = 'auto';
+                frame.style.height = 'auto';
+                frame.style.objectFit = 'contain';
+            }
+
+            hideAllFrames() {
+                // Hide all frames from all FPS modes to prevent flashing/interference
+                const allFrames = [
+                    ...this.state.frames30, 
+                    ...this.state.outFrames30, 
+                    ...this.state.frames60, 
+                    ...this.state.outFrames60
+                ];
                 
-                const action = isOpening ? 'Opening' : 'Closing';
-                this.updateDebug(`${action} Frame ${this.currentFrame}`);
+                allFrames.forEach(frame => {
+                    if (frame && frame.style) {
+                        frame.style.display = 'none';
+                    }
+                });
                 
-                // Show new frame and immediately hide previous frame
-                currentFrame.style.display = 'block';
-                
-                // Hide previous frame immediately to prevent flash
-                if (this.currentFrame > 0) {
-                    frameArray[this.currentFrame - 1].style.display = 'none';
+                // Reset current frame counter
+                this.state.currentFrame = 0;
+            }
+
+            resetAnimationState() {
+                // Clear any existing timeouts
+                if (this.state.animationId) {
+                    clearTimeout(this.state.animationId);
+                    this.state.animationId = null;
                 }
                 
-                this.currentFrame++;
+                // Reset frame counter (don't touch isPlaying here)
+                this.state.currentFrame = 0;
                 
-                // Schedule next frame
-                setTimeout(() => this.playNextFrame(frameArray, isOpening), this.frameDuration);
+                // Hide all frames completely
+                this.hideAllFrames();
+            }
+
+            hideAllFramesExcept(framesToKeep) {
+                // Hide all frames except the ones we want to keep visible
+                const allFrames = [
+                    ...this.state.frames30, 
+                    ...this.state.outFrames30, 
+                    ...this.state.frames60, 
+                    ...this.state.outFrames60
+                ];
+                
+                allFrames.forEach(frame => {
+                    if (frame && frame.style) {
+                        if (!framesToKeep.includes(frame)) {
+                            frame.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Reset current frame counter
+                this.state.currentFrame = 0;
+            }
+
+            updateFramePositions() {
+                // Update positions of visible frames during resize
+                const allFrames = [...this.state.frames30, ...this.state.outFrames30, ...this.state.frames60, ...this.state.outFrames60];
+                const visibleFrames = allFrames.filter(frame => frame.style.display === 'block');
+                
+                visibleFrames.forEach(frame => this.positionFrame(frame));
             }
 
             endAnimation(isOpening) {
                 if (isOpening) {
-                    this.updateDebug('Opening complete - keeping final frame visible');
-                    this.isExpanded = true;
-                    this.button.classList.add('expanded');
+                    this.updateDebug('Opening complete');
+                    this.state.isExpanded = true;
+                    this.elements.button.classList.add('expanded');
                     this.updateStateIndicator('Expanded');
                 } else {
-                    this.updateDebug('Closing complete - animation hidden');
-                    this.isExpanded = false;
-                    this.button.classList.remove('expanded');
+                    this.updateDebug('Closing complete');
+                    this.state.isExpanded = false;
+                    this.elements.button.classList.remove('expanded');
                     this.updateStateIndicator('Collapsed');
-                    // Keep container visible to maintain final frame
                     
-
+                    // Hide container when closing animation ends
+                    this.elements.container.style.display = 'none';
                 }
                 
-                this.isPlaying = false;
+                this.state.isPlaying = false;
+                if (this.state.animationId) {
+                    clearTimeout(this.state.animationId);
+                    this.state.animationId = null;
+                }
             }
 
             updateStateIndicator(text) {
-                const indicator = this.button.querySelector('.state-indicator');
+                const indicator = this.elements.button.querySelector('.state-indicator');
                 if (indicator) {
                     indicator.textContent = text;
                     indicator.classList.add('visible');
                     
-                    // Hide indicator after a delay
                     setTimeout(() => {
                         indicator.classList.remove('visible');
                     }, 2000);
                 }
+            }
+
+            // Utility function for debouncing
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func.apply(this, args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
         }
 
