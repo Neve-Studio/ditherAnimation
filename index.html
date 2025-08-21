@@ -876,6 +876,7 @@
                     isExpanded: false,
                     loadedFrames: 0,
                     animationId: null,
+                    menuTriggered: false,
                     framesLoaded: {
                         fps30: false,
                         fps60: false
@@ -944,9 +945,6 @@
                 } else {
                     this.startOpeningAnimation();
                 }
-                
-                // Toggle menu visibility
-                this.toggleMenuVisibility();
             }
 
             handleFpsToggle() {
@@ -1221,6 +1219,7 @@
                 this.resetAnimationState();
                 this.state.isPlaying = true;
                 this.state.currentFrame = 0;
+                this.state.menuTriggered = false;
                 
                 // Show container FIRST
                 this.elements.container.style.display = 'block';
@@ -1247,6 +1246,11 @@
                 this.updateDebug(`Starting ${this.config.currentFPS}fps closing animation...`);
                 this.state.isPlaying = true;
                 this.state.currentFrame = 0;
+                
+                // Hide menu items immediately when closing starts
+                this.state.isExpanded = false;
+                this.toggleMenuVisibility();
+                this.updateDebug('Menu items hidden immediately on close');
                 
                 // Get current FPS closing frames and hide others
                 this.hideAllFramesExcept(currentClosingFrames);
@@ -1295,6 +1299,14 @@
                 
                 const action = isOpening ? 'Opening' : 'Closing';
                 this.updateDebug(`${action} Frame ${this.state.currentFrame + 1}/${frameArray.length}`);
+                
+                // Trigger menu visibility early during opening animation (at 25% completion)
+                if (isOpening && this.state.currentFrame >= Math.floor(frameArray.length * 0.25) && !this.state.menuTriggered) {
+                    this.state.menuTriggered = true;
+                    this.state.isExpanded = true;
+                    this.toggleMenuVisibility();
+                    this.updateDebug('Menu items triggered early during animation');
+                }
                 
                 this.state.currentFrame++;
                 
@@ -1391,6 +1403,11 @@
                     this.state.isExpanded = true;
                     this.elements.button.classList.add('expanded');
                     this.updateStateIndicator('Expanded');
+                    
+                    // Don't call toggleMenuVisibility here if we already triggered it early
+                    if (!this.state.menuTriggered) {
+                        this.toggleMenuVisibility();
+                    }
                 } else {
                     this.updateDebug('Closing complete');
                     this.state.isExpanded = false;
@@ -1399,10 +1416,9 @@
                     
                     // Hide container when closing animation ends
                     this.elements.container.style.display = 'none';
+                    
+                    // Don't call toggleMenuVisibility here - already called at start of closing
                 }
-                
-                // Update menu visibility based on animation state
-                this.toggleMenuVisibility();
                 
                 this.state.isPlaying = false;
                 if (this.state.animationId) {
@@ -1435,7 +1451,7 @@
                             setTimeout(() => {
                                 text.classList.add('menu-open');
                             }, wait);
-                            wait += 20;
+                            wait += 5; // Ridotto da 20ms a 5ms per animazione più veloce
                         });
                     } else {
                         backgroundTextsContainer.classList.remove('menu-open');
@@ -1443,7 +1459,7 @@
                             setTimeout(() => {
                                 text.classList.remove('menu-open');
                             }, wait);
-                            wait += 20;
+                            wait += 5; // Ridotto da 20ms a 5ms per animazione più veloce
                         });
                     }
                 }
