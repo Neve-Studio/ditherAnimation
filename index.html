@@ -179,7 +179,6 @@
             z-index: 50;
             pointer-events: auto;
             user-select: none;
-            opacity: 0;
             display: flex;
             gap: 8vw;
             align-items: center;
@@ -190,7 +189,6 @@
         }
 
         .background-text.menu-open {
-            opacity: 1;
             pointer-events: auto;
         }
 
@@ -215,12 +213,19 @@
             font-family: 'GT America', system-ui, sans-serif;
             font-size: clamp(20px, 3vw, 32px);
             color: #00CED1;
-            margin-right: 4vw;
             font-weight: bold;
             min-width: 50px;
         }
 
-        .menu-item img {
+        .menu-item-image-container {
+            position: relative;
+            height: clamp(120px, 18vh, 200px);
+            width: 100%;
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        .menu-item-image-container img {
             height: clamp(120px, 18vh, 200px);
             width: auto;
             display: block;
@@ -229,6 +234,31 @@
             position: absolute;
             top: 0;
             left: 0;
+            transition: transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* First menu item */
+        .menu-item:nth-child(1) .menu-item-image-container img {
+            transform: translateY(162%) rotate(5deg);
+        }
+
+        /* Second menu item */
+        .menu-item:nth-child(2) .menu-item-image-container img {
+            transform: translateY(246%) rotate(10deg);
+        }
+
+        /* Third menu item */
+        .menu-item:nth-child(3) .menu-item-image-container img {
+            transform: translateY(254%) rotate(15deg);
+        }
+
+        /* Fourth menu item */
+        .menu-item:nth-child(4) .menu-item-image-container img {
+            transform: translateY(271%) rotate(20deg);
+        }
+
+        .menu-item-image-container img.menu-open {
+            transform: translateY(0) rotate(0deg) !important;
         }
 
         .menu-item .hover-image {
@@ -376,8 +406,29 @@
                 padding: 7.5vh 0;
             }
             
+            .menu-item-image-container {
+                height: clamp(60px, 10vh, 100px);
+            }
+            
             .menu-item img {
                 height: clamp(60px, 10vh, 100px);
+            }
+            
+            /* Mobile-specific transforms for menu items */
+            .menu-item:nth-child(1) .menu-item-image-container img {
+                transform: translateY(162%) rotate(4deg);
+            }
+            
+            .menu-item:nth-child(2) .menu-item-image-container img {
+                transform: translateY(170%) rotate(6deg);
+            }
+            
+            .menu-item:nth-child(3) .menu-item-image-container img {
+                transform: translateY(178%) rotate(7deg);
+            }
+            
+            .menu-item:nth-child(4) .menu-item-image-container img {
+                transform: translateY(187%) rotate(8deg);
             }
             
             .menu-number {
@@ -428,8 +479,29 @@
                 padding: 10vh 0;
             }
             
+            .menu-item-image-container {
+                height: clamp(50px, 8vh, 80px);
+            }
+            
             .menu-item img {
                 height: clamp(50px, 8vh, 80px);
+            }
+            
+            /* Small mobile-specific transforms for menu items */
+            .menu-item:nth-child(1) .menu-item-image-container img {
+                transform: translateY(96%) rotate(4deg);
+            }
+            
+            .menu-item:nth-child(2) .menu-item-image-container img {
+                transform: translateY(106%) rotate(6deg);
+            }
+            
+            .menu-item:nth-child(3) .menu-item-image-container img {
+                transform: translateY(116%) rotate(7deg);
+            }
+            
+            .menu-item:nth-child(4) .menu-item-image-container img {
+                transform: translateY(126%) rotate(8deg);
             }
             
             .menu-number {
@@ -692,32 +764,40 @@
         <div class="menu-column">
             <div class="menu-item" data-menu="welcome">
                 <span class="menu-number">01</span>
-                <img src="menu/menu-welcome - 4x.png" alt="Welcome" class="default-image" loading="lazy">
-                <img src="menu/menu-welcome-hover - 4x.png" alt="Welcome Hover" class="hover-image" loading="lazy">
+                <div class="menu-item-image-container">
+                    <img src="menu/menu-welcome - 4x.png" alt="Welcome" class="default-image" loading="lazy">
+                    <img src="menu/menu-welcome-hover - 4x.png" alt="Welcome Hover" class="hover-image" loading="lazy">
+                </div>
             </div>
             <div class="menu-item" data-menu="testkitchen">
                 <span class="menu-number">02</span>
-                <img src="menu/menu-testkitchen - 4x.png" alt="Test Kitchen" class="default-image" loading="lazy">
-                <img src="menu/menu-testkitchen-hover - 4x.png" alt="Test Kitchen Hover" class="hover-image" loading="lazy">
+                <div class="menu-item-image-container">
+                    <img src="menu/menu-testkitchen - 4x.png" alt="Test Kitchen" class="default-image" loading="lazy">
+                    <img src="menu/menu-testkitchen-hover - 4x.png" alt="Test Kitchen Hover" class="hover-image" loading="lazy">
+                </div>
             </div>
             <div class="menu-item" data-menu="usermanual">
                 <span class="menu-number">03</span>
-                <img src="menu/menu-usermanual - 4x.png" alt="User Manual" class="default-image" loading="lazy">
-                <img src="menu/menu-usermanual-hover - 4x.png" alt="User Manual Hover" class="hover-image" loading="lazy">
+                <div class="menu-item-image-container">
+                    <img src="menu/menu-usermanual - 4x.png" alt="User Manual" class="default-image" loading="lazy">
+                    <img src="menu/menu-usermanual-hover - 4x.png" alt="User Manual Hover" class="hover-image" loading="lazy">
+                </div>
             </div>
             <div class="menu-item" data-menu="contact">
                 <span class="menu-number">04</span>
-                <img src="menu/menu-contact - 4x.png" alt="Contact" class="default-image" loading="lazy">
-                <img src="menu/menu-contact-hover - 4x.png" alt="Contact Hover" class="hover-image" loading="lazy">
+                <div class="menu-item-image-container">
+                    <img src="menu/menu-contact - 4x.png" alt="Contact" class="default-image" loading="lazy">
+                    <img src="menu/menu-contact-hover - 4x.png" alt="Contact Hover" class="hover-image" loading="lazy">
+                </div>
             </div>
         </div>
         
-        <div class="descriptions-column">
+        <!-- <div class="descriptions-column">
             <div class="description-item">ABOUT GRACE BRIGADE</div>
             <div class="description-item">THOUGHTS AND EXPERIMENTS</div>
             <div class="description-item">OUR PHILOSOPHY</div>
             <div class="description-item">GET IN TOUCH</div>
-        </div>
+        </div> -->
     </div>
 
     <div class="animation-container" id="animationContainer" aria-hidden="true">
@@ -1344,12 +1424,27 @@
             }
 
             toggleMenuVisibility() {
-                const backgroundText = document.getElementById('backgroundText');
-                if (backgroundText) {
+                const backgroundTexts = document.querySelectorAll('.menu-item-image-container img');
+                console.log(backgroundTexts);
+                const backgroundTextsContainer = document.getElementById('backgroundText');
+                let wait = 0;
+                if (backgroundTexts) {
                     if (this.state.isExpanded) {
-                        backgroundText.classList.add('menu-open');
+                        backgroundTextsContainer.classList.add('menu-open');
+                        backgroundTexts.forEach(text => {
+                            setTimeout(() => {
+                                text.classList.add('menu-open');
+                            }, wait);
+                            wait += 20;
+                        });
                     } else {
-                        backgroundText.classList.remove('menu-open');
+                        backgroundTextsContainer.classList.remove('menu-open');
+                        backgroundTexts.forEach(text => {
+                            setTimeout(() => {
+                                text.classList.remove('menu-open');
+                            }, wait);
+                            wait += 20;
+                        });
                     }
                 }
             }
