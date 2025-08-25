@@ -166,7 +166,7 @@
             font-family: 'Courier New', monospace;
             font-size: clamp(10px, 2vw, 12px);
             z-index: 1001;
-            display: none; /* Hidden in production */
+            display: none !important; /* Hidden in production */
             opacity: 0.7;
         }
 
@@ -209,13 +209,7 @@
             position: relative;
         }
 
-        .menu-number {
-            font-family: 'GT America', system-ui, sans-serif;
-            font-size: clamp(20px, 3vw, 32px);
-            color: #00CED1;
-            font-weight: bold;
-            min-width: 50px;
-        }
+
 
         .menu-item-image-container {
             position: relative;
@@ -319,6 +313,44 @@
             max-width: 280px;
             font-weight: bold;
             letter-spacing: 0.5px;
+            min-height: 1.4em;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease;
+        }
+
+        .description-item.visible {
+            opacity: 1;
+        }
+
+        .menu-number {
+            font-family: 'GT America', system-ui, sans-serif;
+            font-size: clamp(20px, 3vw, 32px);
+            color: #00CED1;
+            font-weight: bold;
+            min-width: 50px;
+            min-height: 1.2em;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-number.visible {
+            opacity: 1;
+        }
+
+        /* Typing animation styles */
+        .typing-complete {
+            /* Optional: add any completion styles here */
+        }
+
+        @keyframes fadeInChar {
+            from {
+                opacity: 0;
+                transform: translateY(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
@@ -763,28 +795,28 @@
     <div class="background-text" id="backgroundText">
         <div class="menu-column">
             <div class="menu-item" data-menu="welcome">
-                <span class="menu-number">01</span>
+                <span class="menu-number" data-text="01">01</span>
                 <div class="menu-item-image-container">
                     <img src="menu/menu-welcome - 4x.png" alt="Welcome" class="default-image" loading="lazy">
                     <img src="menu/menu-welcome-hover - 4x.png" alt="Welcome Hover" class="hover-image" loading="lazy">
                 </div>
             </div>
             <div class="menu-item" data-menu="testkitchen">
-                <span class="menu-number">02</span>
+                <span class="menu-number" data-text="02">02</span>
                 <div class="menu-item-image-container">
                     <img src="menu/menu-testkitchen - 4x.png" alt="Test Kitchen" class="default-image" loading="lazy">
                     <img src="menu/menu-testkitchen-hover - 4x.png" alt="Test Kitchen Hover" class="hover-image" loading="lazy">
                 </div>
             </div>
             <div class="menu-item" data-menu="usermanual">
-                <span class="menu-number">03</span>
+                <span class="menu-number" data-text="03">03</span>
                 <div class="menu-item-image-container">
                     <img src="menu/menu-usermanual - 4x.png" alt="User Manual" class="default-image" loading="lazy">
                     <img src="menu/menu-usermanual-hover - 4x.png" alt="User Manual Hover" class="hover-image" loading="lazy">
                 </div>
             </div>
             <div class="menu-item" data-menu="contact">
-                <span class="menu-number">04</span>
+                <span class="menu-number" data-text="04">04</span>
                 <div class="menu-item-image-container">
                     <img src="menu/menu-contact - 4x.png" alt="Contact" class="default-image" loading="lazy">
                     <img src="menu/menu-contact-hover - 4x.png" alt="Contact Hover" class="hover-image" loading="lazy">
@@ -792,12 +824,12 @@
             </div>
         </div>
         
-        <!-- <div class="descriptions-column">
-            <div class="description-item">ABOUT GRACE BRIGADE</div>
-            <div class="description-item">THOUGHTS AND EXPERIMENTS</div>
-            <div class="description-item">OUR PHILOSOPHY</div>
-            <div class="description-item">GET IN TOUCH</div>
-        </div> -->
+        <div class="descriptions-column">
+            <div class="description-item" data-text="ABOUT GRACE BRIGADE"></div>
+            <div class="description-item" data-text="THOUGHTS AND EXPERIMENTS"></div>
+            <div class="description-item" data-text="OUR PHILOSOPHY"></div>
+            <div class="description-item" data-text="GET IN TOUCH"></div>
+        </div>
     </div>
 
     <div class="animation-container" id="animationContainer" aria-hidden="true">
@@ -1247,10 +1279,10 @@
                 this.state.isPlaying = true;
                 this.state.currentFrame = 0;
                 
-                // Hide menu items immediately when closing starts
-                this.state.isExpanded = false;
-                this.toggleMenuVisibility();
-                this.updateDebug('Menu items hidden immediately on close');
+                // Don't hide menu items immediately - let them disappear after a delay
+                // this.state.isExpanded = false;
+                // this.toggleMenuVisibility();
+                this.updateDebug('Menu items will fade out after delay during closing animation');
                 
                 // Get current FPS closing frames and hide others
                 this.hideAllFramesExcept(currentClosingFrames);
@@ -1306,6 +1338,13 @@
                     this.state.isExpanded = true;
                     this.toggleMenuVisibility();
                     this.updateDebug('Menu items triggered early during animation');
+                }
+                
+                // Hide menu items during closing animation (at 40% completion)
+                if (!isOpening && this.state.currentFrame >= Math.floor(frameArray.length * 0.4) && this.state.isExpanded) {
+                    this.state.isExpanded = false;
+                    this.toggleMenuVisibility();
+                    this.updateDebug('Menu items hidden during closing animation');
                 }
                 
                 this.state.currentFrame++;
@@ -1417,7 +1456,10 @@
                     // Hide container when closing animation ends
                     this.elements.container.style.display = 'none';
                     
-                    // Don't call toggleMenuVisibility here - already called at start of closing
+                    // Ensure menu items are hidden when closing animation ends
+                    if (this.state.isExpanded === false) {
+                        this.toggleMenuVisibility();
+                    }
                 }
                 
                 this.state.isPlaying = false;
@@ -1453,6 +1495,16 @@
                             }, wait);
                             wait += 5; // Ridotto da 20ms a 5ms per animazione più veloce
                         });
+                        
+                        // Start typing animation after menu items appear
+                        setTimeout(() => {
+                            console.log('Menu opened, starting typing animation...');
+                            if (window.typingAnimation) {
+                                window.typingAnimation.startTypingAnimation();
+                            } else {
+                                console.error('Typing animation not found!');
+                            }
+                        }, wait + 100); // Start typing after last menu item appears
                     } else {
                         backgroundTextsContainer.classList.remove('menu-open');
                         backgroundTexts.forEach(text => {
@@ -1461,6 +1513,14 @@
                             }, wait);
                             wait += 5; // Ridotto da 20ms a 5ms per animazione più veloce
                         });
+                        
+                        // Reset typing animation when menu closes
+                        console.log('Menu closing, resetting typing animation...');
+                        if (window.typingAnimation) {
+                            window.typingAnimation.resetTyping();
+                        } else {
+                            console.error('Typing animation not found on close!');
+                        }
                     }
                 }
             }
@@ -1593,10 +1653,135 @@
             }
         }
 
+        // Typing animation functionality
+        class TypingAnimation {
+            constructor() {
+                this.typingSpeed = 30; // milliseconds per character (faster)
+                this.init();
+            }
+
+            init() {
+                // Initialize all text elements with empty content
+                this.initializeTextElements();
+            }
+
+            initializeTextElements() {
+                // Initialize menu numbers
+                const menuNumbers = document.querySelectorAll('.menu-number');
+                menuNumbers.forEach(number => {
+                    const text = number.dataset.text;
+                    if (text) {
+                        number.textContent = '';
+                        number.dataset.originalText = text;
+                    }
+                });
+
+                // Initialize descriptions
+                const descriptions = document.querySelectorAll('.description-item');
+                descriptions.forEach(desc => {
+                    const text = desc.dataset.text;
+                    if (text) {
+                        desc.textContent = '';
+                        desc.dataset.originalText = text;
+                    }
+                });
+            }
+
+            startTypingAnimation() {
+                // Make all elements visible first
+                this.showAllElements();
+                // Then type all elements simultaneously
+                this.typeAllElements();
+            }
+
+            showAllElements() {
+                const allElements = document.querySelectorAll('.menu-number, .description-item');
+                allElements.forEach(element => {
+                    element.classList.add('visible');
+                });
+            }
+
+            async typeAllElements() {
+                const menuNumbers = document.querySelectorAll('.menu-number');
+                const descriptions = document.querySelectorAll('.description-item');
+                
+                // First, restore original text to all elements from dataset.text (which is always there)
+                const allElements = document.querySelectorAll('.menu-number, .description-item');
+                allElements.forEach(element => {
+                    const text = element.dataset.text; // Always use dataset.text, not originalText
+                    if (text) {
+                        element.textContent = text;
+                        // Also restore originalText for consistency
+                        element.dataset.originalText = text;
+                    }
+                });
+                
+                // Get the longest text length to determine total animation duration
+                const maxLength = Math.max(
+                    ...Array.from(menuNumbers).map(n => n.dataset.text?.length || 0),
+                    ...Array.from(descriptions).map(d => d.dataset.text?.length || 0)
+                );
+
+                // Clear all text first
+                allElements.forEach(element => {
+                    element.textContent = '';
+                });
+
+                // Type all elements character by character simultaneously
+                for (let charIndex = 0; charIndex < maxLength; charIndex++) {
+                    // Type current character in all menu numbers
+                    menuNumbers.forEach(number => {
+                        const text = number.dataset.text; // Use dataset.text directly
+                        if (text && charIndex < text.length) {
+                            this.addCharacter(number, text[charIndex]);
+                        }
+                    });
+
+                    // Type current character in all descriptions
+                    descriptions.forEach(desc => {
+                        const text = desc.dataset.text; // Use dataset.text directly
+                        if (text && charIndex < text.length) {
+                            this.addCharacter(desc, text[charIndex]);
+                        }
+                    });
+
+                    await this.delay(this.typingSpeed);
+                }
+
+                // Mark all as complete
+                allElements.forEach(element => {
+                    element.classList.add('typing-complete');
+                });
+            }
+
+            addCharacter(element, char) {
+                const charSpan = document.createElement('span');
+                charSpan.textContent = char;
+                charSpan.style.opacity = '0';
+                charSpan.style.animation = 'fadeInChar 0.1s ease forwards';
+                element.appendChild(charSpan);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            resetTyping() {
+                // Reset all text elements to empty and hide them
+                const allElements = document.querySelectorAll('.menu-number, .description-item');
+                allElements.forEach(element => {
+                    element.textContent = '';
+                    element.classList.remove('typing-complete');
+                    element.classList.remove('visible');
+                });
+            }
+        }
+
         // Initialize both animation and menu interaction when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             new MenuAnimation();
             new MenuInteraction();
+            window.typingAnimation = new TypingAnimation();
         });
     </script>
 </body>
